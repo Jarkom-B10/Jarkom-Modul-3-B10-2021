@@ -19,11 +19,44 @@ Luffy yang sudah menjadi Raja Bajak Laut ingin mengembangkan daerah kekuasaannya
 ## Soal 1
 Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria **EniesLobby** sebagai DNS Server, **Jipangu** sebagai DHCP Server, **Water7** sebagai Proxy Server (1),
 ### Solusi 1
+Membuat topologi sebagai berikut:
+
+![topologi_jawaban](img/topologi_jawaban.png)
+
+**EniesLobby**
+- Jalankan perintah dari praktikum modul 2, ganti IP dari Skypie ```nano /etc/bind/kaizoku/franky.B10.com```.
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     franky.B10.com. root.franky.B10.com. (
+                              2021102601                ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      franky.B10.com.
+@       IN      A       10.12.2.2
+www     IN      CNAME   franky.B10.com.
+super   IN      A       10.12.3.2
+www.super       IN      CNAME   super.franky.B10.com.
+```
+- Jalankan ```bash dns.sh``` pada EniesLobby dan Loguetown.
+- Jalankan ```bash web.sh``` pada Skypie.
+
+**Jipangu**
+- Jalankan ```bash dhcp.sh``` pada Jipangu.
+
+**Water7**
+- Jalankan ```bash proxy.sh``` pada Water7.
 
 ## Soal 2
 dan **Foosha** sebagai DHCP Relay (2). Luffy dan Zoro **menyusun peta tersebut dengan hati-hati dan teliti**.
 ### Solusi 2
-
+**Foosha**
+- Jalankan ```bash dhcp.sh``` pada Foosha.
 ## Soal 3
 Semua client yang ada **HARUS** menggunakan konfigurasi IP dari DHCP Server.
 
