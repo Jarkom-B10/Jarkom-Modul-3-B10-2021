@@ -158,9 +158,9 @@ subnet 10.12.1.0 netmask 255.255.255.0 {
     max-lease-time 7200;
 }
 ```
-- Start DHCP Server
+- Restart DHCP Server
 ```
-service isc-dhcp-server start
+service isc-dhcp-server restart
 ```
 #### Client
 - Konfigurasi baru untuk Loguetown dan Alabasta di file `/etc/network/interfaces`. Comment line sebelumnya dan tambahkan line berikut.
@@ -188,15 +188,70 @@ iface eth0 inet dhcp
 ## Soal 4
 Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix IP].3.50 (4) 
 ### Solusi 4
+- Edit file `/etc/dhcp/dhcpd.conf` untuk konfigurasi Switch 3.
+```
+...
+subnet 10.12.3.0 netmask 255.255.255.0 {
+    range 10.12.3.30 10.12.3.50;
+    option routers 10.12.3.1;
+    option broadcast-address 10.12.3.255;
+    option domain-name-servers 10.12.2.2;
+    default-lease-time 720;
+    max-lease-time 7200;
+}
+```
+- Restart DHCP Server
+```
+service isc-dhcp-server restart
+```
+#### Client
+- Konfigurasi baru untuk Skypie dan Tottoland di file `/etc/network/interfaces`. Comment line sebelumnya dan tambahkan line berikut.
+```
+auto eth0
+iface eth0 inet dhcp
+```
+- Proses leasing DHCP berhasil:
 
+![Skypie](img/soal4-skypie.png)
+
+![TottoLand](img/soal4-tottoland.png)
 ## Soal 5
 Client mendapatkan DNS dari EniesLobby dan client dapat terhubung dengan internet melalui DNS tersebut. (5)
 ### Solusi 5
+#### EniesLobby
+- Edit file `/etc/bind/named.conf.options` untuk melakukan forwarding ke **Foosha**.
+```
+...
+    forwarders {
+        192.168.122.1;
+    };
 
+    //=====================================================================$
+    // If BIND logs error messages about the root key being expired,
+    // you will need to update your keys.  See https://www.isc.org/bind-keys
+    //=====================================================================$
+    //dnssec-validation auto;
+    allow-query{any;};
+...
+```
+- Restart Bind9.
+```
+service bind9 restart.
+```
+#### Client
+- Client mendapatkan DNS:
+
+![Loguetown](img/soal5-loguetown.png)
+
+![Alabasta](img/soal5-alabasta.png)
+
+![Skypie](img/soal5-skypie.png)
+
+![TottoLand](img/soal5-tottoland.png)
 ## Soal 6
 Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch1 selama 6 menit sedangkan pada client yang melalui Switch3 selama 12 menit. Dengan waktu maksimal yang dialokasikan untuk peminjaman alamat IP selama 120 menit. (6)
 ### Solusi 6
-
+- Sudah dilakukan di nomor [3](#solusi-3) dan [4](#solusi-4) dengan mengubah `default-lease-time` menjadi 360 untuk Switch 1 dan 720 untuk Switch 2.
 ## Soal 7
 Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli kapal yang dimilikinya dengan **alamat IP yang tetap** dengan IP [prefix IP].3.69 (7). **Loguetown** digunakan sebagai client **Proxy** agar transaksi jual beli dapat terjamin keamanannya, juga untuk mencegah kebocoran data transaksi.
 ### Solusi 7
