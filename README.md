@@ -22,9 +22,42 @@ Luffy bersama Zoro berencana membuat peta tersebut dengan kriteria **EniesLobby*
 Membuat topologi sebagai berikut:
 
 ![topologi_jawaban](img/topologi_jawaban.png)
-
-**EniesLobby**
-- Jalankan perintah dari praktikum modul 2, ganti IP dari Skypie ```nano /etc/bind/kaizoku/franky.B10.com```.
+#### Konfigurasi
+**Foosha**
+```
+...
+auto eth3
+iface eth3 inet static
+	address 10.12.3.1
+	netmask 255.255.255.0
+```
+**Jipangu**
+```
+auto eth0
+iface eth0 inet static
+	address 10.12.2.4
+	netmask 255.255.255.0
+	gateway 10.12.2.1
+```
+**Skypie**
+```
+auto eth0
+iface eth0 inet static
+	address 10.12.3.2
+	netmask 255.255.255.0
+	gateway 10.12.3.1
+```
+**Tottoland**
+```
+auto eth0
+iface eth0 inet static
+	address 10.12.3.3
+	netmask 255.255.255.0
+	gateway 10.12.3.1
+```
+#### DNS Server
+- Jalankan ```bash dns.sh``` pada EniesLobby dan Loguetown untuk menjalankan proses **restore** dari folder backup modul 2.
+- Ganti IP dari Skypie pada file konfigurasi di EniesLobby ```nano /etc/bind/kaizoku/franky.B10.com``` menjadi `10.12.3.2`.
 ```
 ;
 ; BIND data file for local loopback interface
@@ -43,25 +76,114 @@ www     IN      CNAME   franky.B10.com.
 super   IN      A       10.12.3.2
 www.super       IN      CNAME   super.franky.B10.com.
 ```
-- Jalankan ```bash dns.sh``` pada EniesLobby dan Loguetown.
-- Jalankan ```bash web.sh``` pada Skypie.
+- Jalankan ```bash web.sh``` pada Skypie untuk menjalankan proses restore dari backup modul 2 di bagian web server.
+- Loguetown harusnya sekarang bisa ping dan membuka website www.super.franky.B10.com (testing page saat modul 2)
 
-**Jipangu**
-- Jalankan ```bash dhcp.sh``` pada Jipangu.
+![teting dns](img/soal1-dns1.png)
 
-**Water7**
-- Jalankan ```bash proxy.sh``` pada Water7.
+![teting dns](img/soal1-dns2.png)
+
+#### DHCP
+- Install DHCP Server pada Jipangu.
+```
+apt-get update
+apt-get install isc-dhcp-server -y
+```
+- Isi dengan "eth0" pada interfaces dalam file `/etc/default/isc-dhcp-server`.
+```
+...
+# On what interfaces should the DHCP server (dhcpd) serve DHCP requests?
+#       Separate multiple interfaces with spaces, e.g. "eth0 eth1".
+INTERFACES="eth0"
+```
+
+#### Proxy Server
+- Install dan start Squid pada Water7.
+```
+apt-get update
+apt-get install squid
+service squid start
+```
 
 ## Soal 2
 dan **Foosha** sebagai DHCP Relay (2). Luffy dan Zoro **menyusun peta tersebut dengan hati-hati dan teliti**.
 ### Solusi 2
 **Foosha**
-- Jalankan ```bash dhcp.sh``` pada Foosha.
+- Install DHCP Relay pada Foosha.
+```
+apt-get update
+apt-get install isc-dhcp-relay
+```
+
+- Isi dengan IP Jipangu (`10.12.2.4`) pada bagian forward requests. Isi dengan `eth1 eth2 eth3` pada interfaces. Kosongi pada additional options.
+
+![config relay](img/relay-startconfig.png)
+
+- Isi file `/etc/default/isc-dhcp-relay`
+```
+...
+# What servers should the DHCP relay forward requests to?
+SERVERS="10.12.2.4"
+
+# On what interfaces should the DHCP relay (dhrelay) serve DHCP requests?
+INTERFACES="eth1 eth2 eth3"
+
+# Additional options that are passed to the DHCP relay daemon?
+OPTIONS=""
+```
+- Restart.
+```
+service isc-dhcp-relay restart
+```
 ## Soal 3
 Semua client yang ada **HARUS** menggunakan konfigurasi IP dari DHCP Server.
 
 Client yang melalui Switch1 mendapatkan range IP dari [prefix IP].1.20 - [prefix IP].1.99 dan [prefix IP].1.150 - [prefix IP].1.169 (3)
 ### Solusi 3
+#### Jipangu
+- Edit file `/etc/dhcp/dhcpd.conf` untuk konfigurasi Switch 2 dan Switch 1.
+```
+...
+subnet 10.12.2.0 netmask 255.255.255.0 {
+    option routers 10.12.2.1;
+}
+
+subnet 10.12.1.0 netmask 255.255.255.0 {
+    range 10.12.1.20 10.12.1.99;
+    range 10.12.1.150 10.12.1.169;
+    option routers 10.12.1.1;
+    option broadcast-address 10.12.1.255;
+    option domain-name-servers 10.12.2.2;
+    default-lease-time 360;
+    max-lease-time 7200;
+}
+```
+- Start DHCP Server
+```
+service isc-dhcp-server start
+```
+#### Client
+- Konfigurasi baru untuk Loguetown dan Alabasta di file `/etc/network/interfaces`. Comment line sebelumnya dan tambahkan line berikut.
+```
+auto eth0
+iface eth0 inet dhcp
+```
+- Contoh file pada Loguetown:
+```
+#auto eth0
+#iface eth0 inet static
+#	address 10.12.1.2
+#	netmask 255.255.255.0
+#	gateway 10.12.1.1
+
+auto eth0
+iface eth0 inet dhcp
+```
+- Proses leasing DHCP berhasil:
+
+![loguetown](img/soal3-loguetown.png)
+
+![alabasta](img/soal3-loguetown.png)
 
 ## Soal 4
 Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix IP].3.50 (4) 
