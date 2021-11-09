@@ -188,6 +188,7 @@ iface eth0 inet dhcp
 ## Soal 4
 Client yang melalui Switch3 mendapatkan range IP dari [prefix IP].3.30 - [prefix IP].3.50 (4) 
 ### Solusi 4
+#### Jipangu
 - Edit file `/etc/dhcp/dhcpd.conf` untuk konfigurasi Switch 3.
 ```
 ...
@@ -255,10 +256,100 @@ Lama waktu DHCP server meminjamkan alamat IP kepada Client yang melalui Switch1 
 ## Soal 7
 Luffy dan Zoro berencana menjadikan **Skypie** sebagai server untuk jual beli kapal yang dimilikinya dengan **alamat IP yang tetap** dengan IP [prefix IP].3.69 (7). **Loguetown** digunakan sebagai client **Proxy** agar transaksi jual beli dapat terjamin keamanannya, juga untuk mencegah kebocoran data transaksi.
 ### Solusi 7
+#### Jipangu
+- Edit file `/etc/dhcp/dhcpd.conf` untuk konfigurasi fixed address Skypie.
+```
+...
+host Skypie {
+    hardware ethernet 22:05:7a:0a:83:bd;
+    fixed-address 10.12.3.69;
+}
+```
+- Restart DHCP Server
+```
+service isc-dhcp-server restart
+```
+#### Skypie
+- Konfigurasi baru untuk Skypie di file `/etc/network/interfaces`.
+```
+#auto eth0
+#iface eth0 inet static
+#       address 10.12.3.2
+#       netmask 255.255.255.0
+#       gateway 10.12.3.1
+auto eth0
+iface eth0 inet dhcp
+hwaddress ether 22:05:7a:0a:83:bd
+```
+- Restart Skypie.
+- Skypie sudah memiliki fixed address:
 
+![Skypie](img/soal6-skypie.png)
 ## Soal 8
 Pada Loguetown, proxy **harus bisa diakses** dengan nama **jualbelikapal.yyy.com** dengan **port** yang digunakan adalah **5000** (8).
 ### Solusi 8
+#### DNS
+- Membuat domain baru yaitu `jualbelikapal.B10.com` dengan edit file  `/etc/bind/named.conf.local`
+```
+zone "jualbelikapal.B10.com" {
+    type master;
+    file "/etc/bind/kaizoku/jualbelikapal.B10.com";
+};
+```
+- Copy file default db.local
+```
+cp /etc/bind/db.local /etc/bind/kaizoku/jualbelikapal.B10.com
+```
+- Edit file tersebut hingga seperti ini:
+```
+;
+; BIND data file for local loopback interface
+;
+$TTL    604800
+@       IN      SOA     jualbelikapal.B10.com. root.jualbelikapal.B10.com. (
+                     2021110901         ; Serial
+                         604800         ; Refresh
+                          86400         ; Retry
+                        2419200         ; Expire
+                         604800 )       ; Negative Cache TTL
+;
+@       IN      NS      jualbelikapal.B10.com.
+@       IN      A       10.12.3.69
+@       IN      AAAA    ::1
+```
+- Restart bind9 lalu uji ping:
+![ping](img/soal8-dnstest.png)
+#### WebServer
+- Install beberapa aplikasi yang diperlukan
+```
+apt-get update
+apt-get install apache2 -y
+apt-get install php -y
+apt-get install libapache2-mod-php7.0
+```
+- Di direktori `/etc/apache2/sites-available`, copy file default config `000-default.conf` jadi `jualbelikapal.B10.com.conf`.
+- Tambahkan line berikut:
+```
+DocumentRoot /var/www/jualbelikapal.B10.com
+ServerName jualbelikapal.B10.com
+ServerAlias www.jualbelikapal.B10.com
+```
+- Enable website lalu restart apache2
+```
+a2ensite jualbelikapal.B10.com.conf
+service apache2 restart
+```
+- Mengisi folder asset dengan file index.php untuk testing.
+- Hasil lynx tanpa port:
+
+![tanpa port](img/soal8-webser1.png)
+
+- Hasil lynx dengan port:
+
+![dengan port](img/soal8-webser2.png)
+
+#### Proxy
+
 
 ## Soal 9
 Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy dipasang **autentikasi user proxy dengan enkripsi bcrypt** dengan **dua username**, yaitu luffybelikapalyyy dengan password luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy (9).
