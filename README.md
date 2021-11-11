@@ -333,7 +333,7 @@ service squid restart
 ```
 - Pada Loguetown, aktifkan proxy dengan perintah:
 ```
-export http_proxy="http://jualbelikapal.B10.com:"
+export http_proxy="http://jualbelikapal.B10.com:5000"
 ```
 - Uji proxy:
 
