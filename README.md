@@ -318,6 +318,7 @@ $TTL    604800
 @       IN      AAAA    ::1
 ```
 - Restart bind9 lalu uji ping:
+
 ![ping](img/soal8-dnstest.png)
 #### Proxy - Water7
 - Edit file config pada Water7 dengan port 5000:
@@ -326,7 +327,16 @@ http_port 5000
 visible_hostname Water7
 http_access deny all
 ```
-- Restart squid lalu uji lynx:
+- Restart squid:
+```
+service squid restart
+```
+- Pada Loguetown, aktifkan proxy dengan perintah:
+```
+export http_proxy="http://jualbelikapal.B10.com:"
+```
+- Uji proxy:
+
 ![ping](img/soal8-proxytest.png)
 ## Soal 9
 Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy dipasang **autentikasi user proxy dengan enkripsi bcrypt** dengan **dua username**, yaitu luffybelikapalyyy dengan password luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy (9).
