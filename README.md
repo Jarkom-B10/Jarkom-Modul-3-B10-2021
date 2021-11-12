@@ -354,6 +354,11 @@ service apache2 restart
 ## Soal 9
 Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy dipasang **autentikasi user proxy dengan enkripsi bcrypt** dengan **dua username**, yaitu luffybelikapalyyy dengan password luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy (9).
 ### Solusi 9
+- Pada server proxy, diinstall terlebih dahulu `apache2-utils`
+- Kemudian, memasukkan data username dan password untuk diaplikasikan pada proxy. Berikut commandnya:
+```
+
+```
 
 ## Soal 10
 Transaksi jual beli tidak dilakukan setiap hari, oleh karena itu akses internet dibatasi hanya dapat diakses setiap hari **Senin-Kamis pukul 07.00-11.00** dan setiap hari **Selasa-Jum’at pukul 17.00-03.00** keesokan harinya **(sampai Sabtu pukul 03.00)** (10).
