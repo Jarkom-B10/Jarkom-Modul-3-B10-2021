@@ -288,7 +288,7 @@ hwaddress ether 22:05:7a:0a:83:bd
 ## Soal 8
 Pada Loguetown, proxy **harus bisa diakses** dengan nama **jualbelikapal.yyy.com** dengan **port** yang digunakan adalah **5000** (8).
 ### Solusi 8
-#### DNS
+#### DNS - EniesLobby
 - Membuat domain baru yaitu `jualbelikapal.B10.com` dengan edit file  `/etc/bind/named.conf.local`
 ```
 zone "jualbelikapal.B10.com" {
@@ -300,7 +300,7 @@ zone "jualbelikapal.B10.com" {
 ```
 cp /etc/bind/db.local /etc/bind/kaizoku/jualbelikapal.B10.com
 ```
-- Edit file tersebut hingga seperti ini:
+- Edit file tersebut untuk mengarahkan proxy jualbelikapal.B10.com ke Water7:
 ```
 ;
 ; BIND data file for local loopback interface
@@ -314,42 +314,30 @@ $TTL    604800
                          604800 )       ; Negative Cache TTL
 ;
 @       IN      NS      jualbelikapal.B10.com.
-@       IN      A       10.12.3.69
+@       IN      A       10.12.2.3
 @       IN      AAAA    ::1
 ```
 - Restart bind9 lalu uji ping:
+
 ![ping](img/soal8-dnstest.png)
-#### WebServer
-- Install beberapa aplikasi yang diperlukan
+#### Proxy - Water7
+- Edit file config pada Water7 dengan port 5000:
 ```
-apt-get update
-apt-get install apache2 -y
-apt-get install php -y
-apt-get install libapache2-mod-php7.0
+http_port 5000
+visible_hostname Water7
+http_access deny all
 ```
-- Di direktori `/etc/apache2/sites-available`, copy file default config `000-default.conf` jadi `jualbelikapal.B10.com.conf`.
-- Tambahkan line berikut:
+- Restart squid:
 ```
-DocumentRoot /var/www/jualbelikapal.B10.com
-ServerName jualbelikapal.B10.com
-ServerAlias www.jualbelikapal.B10.com
+service squid restart
 ```
-- Enable website lalu restart apache2
+- Pada Loguetown, aktifkan proxy dengan perintah:
 ```
-a2ensite jualbelikapal.B10.com.conf
-service apache2 restart
+export http_proxy="http://jualbelikapal.B10.com:5000"
 ```
-- Mengisi folder asset dengan file index.php untuk testing.
-- Hasil lynx tanpa port:
+- Uji proxy:
 
-![tanpa port](img/soal8-webser1.png)
-
-- Hasil lynx dengan port:
-
-![dengan port](img/soal8-webser2.png)
-
-#### Proxy
-
+![ping](img/soal8-proxytest.png)
 
 ## Soal 9
 Agar transaksi jual beli lebih aman dan pengguna website ada dua orang, proxy dipasang **autentikasi user proxy dengan enkripsi bcrypt** dengan **dua username**, yaitu luffybelikapalyyy dengan password luffy_yyy **dan** zorobelikapalyyy dengan password zoro_yyy (9).
