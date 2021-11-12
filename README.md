@@ -364,15 +364,36 @@ New password:zoro_B10
 ```
 - Parameter -c pada pembuatan password pertama berfungsi untuk membuat konfigurasi password pertama kali. Kemudian -m untuk memastikan bahwa password dienkripsi dengan MD5.
 - Untuk pembuatan password kedua tidak perlu -c.
-- Ketika dicoba akses `lynx jualbelikapal.B10.com`, hasilnya diminta username dan password agar bisa masuk:
+- Setelah password dibuat, perlu diaktifkan terlebih dahulu di dalam `/etc/squid/squid.conf`
+![aktif password](img/soal9-passwordactive.png)
+- Ketika dicoba akses `lynx jualbelikapal.B10.com`, pada Loguetown, hasilnya diminta username dan password agar bisa masuk:
+![forbidden](img/soal9-forbidden.png)
+- Penginputan username
+![username](img/soal9-username.png)
+- Penginputan password
+
+![password](img/soal9-password.png)
+- Isi file `/etc/squid/passwd`
+![passwords](img/soal9-passwords.png)
 
 ## Soal 10
 Transaksi jual beli tidak dilakukan setiap hari, oleh karena itu akses internet dibatasi hanya dapat diakses setiap hari **Senin-Kamis pukul 07.00-11.00** dan setiap hari **Selasa-Jum’at pukul 17.00-03.00** keesokan harinya **(sampai Sabtu pukul 03.00)** (10).
 ### Solusi 10
+- Pembatasan dilakukan dengan cara membuat acl rules baru pada `/etc/squid/acl.conf`
+![acl conf](img/soal10-acl.png)
+- Pada rules di atas, dibuat 3 rules. Rule pertama untuk mengatur jam kerja dari hari senin sampai kamis mulai jam 07:00-11:00. Rule ke 2 dan ke 3 merupakan pasangan untuk membuat jam kerja 17:00-03:00. Dipisah menjadi dua karena acl rules untuk AVAILABLE_WORKING tidak dapat disetting jam awal melebihi jam akhir.
+- Rules tersebut kemudian diaktifkan pada `/etc/squid/squid.conf`. Tapi terlebih dahulu ditambahkan `include /etc/squid/acl.conf` karena acl rulesnya dibuat pada file eksterenal.
+![aktifkan working](img/soal10-working.png)
+- Pengaktifan rules dibuat seperti itu karena rules yang berada pada satu baris diproses dengan aturan and (&&), sedangkan untuk rules beda baris diproses dengan aturan or(||). Artinya pada susunan rules tersebut, setiap kali akan mengakses website yang diatur proxy, harus selalu login dan harus diakses pada salah satu jam yang telah diperbolehkan.
+- Berikut hasilnya ketika mencoba mengakses luffybelikapal.B10.com di luar jam yang diperbolehkan.
+![working hours](img/soal10-work.png)
 
 ## Soal 11
 Agar transaksi bisa lebih fokus berjalan, maka dilakukan redirect website agar mudah mengingat website transaksi jual beli kapal. Setiap **mengakses google.com, akan diredirect menuju super.franky.yyy.com** dengan website yang sama pada soal shift modul 2. Web server super.franky.yyy.com berada pada node **Skypie** (11).
 ### Solusi 11
+- Permintaan ini dapat dipenuhi dengan membuat acl rules lagi. Kali ini, acl rules dibuat di dalam `/etc/squid/squid.conf` langsung, sehingga tidak perlu include acl rules luaran.
+![acl redirect](img/soal11-redirect.png)
+- Rule di atas kurang lebihnya adalah memblacklist google.com, lalu siapapun yang mengakses google.com akan dialihkan ke super.franky.B10.com.
 
 ## Soal 12
 Saatnya berlayar! Luffy dan Zoro akhirnya memutuskan untuk berlayar untuk **mencari harta karun di super.franky.yyy.com**. Tugas pencarian dibagi menjadi dua misi, Luffy bertugas untuk mendapatkan gambar (.png, .jpg), sedangkan Zoro mencari sisanya. Karena Luffy orangnya sangat teliti untuk mencari harta karun, ketika ia berhasil mendapatkan gambar, ia mendapatkan gambar dan melihatnya dengan kecepatan **10 kbps** (12).
