@@ -7,7 +7,55 @@ Pramudya Tiandana Wisnu Gautama | 05111940000018 | x - x
 Jason Andrew Gunawan | 05111940000085 | x - x
 Frans Wijaya | 05111940000098 | x - x
 
-### Keterangan:
+## Daftar Isi
+- [Jarkom-Modul-3-B10-2021](#jarkom-modul-3-b10-2021)
+  * [Anggota B10](#anggota-b10)
+  * [Daftar Isi](#daftar-isi)
+    + [Keterangan:](#keterangan)
+  * [Soal](#soal)
+  * [Soal 1](#soal-1)
+    + [Solusi 1](#solusi-1)
+      - [Konfigurasi](#konfigurasi)
+      - [DNS Server](#dns-server)
+      - [DHCP](#dhcp)
+      - [Proxy Server](#proxy-server)
+  * [Soal 2](#soal-2)
+    + [Solusi 2](#solusi-2)
+  * [Soal 3](#soal-3)
+    + [Solusi 3](#solusi-3)
+      - [Jipangu](#jipangu)
+      - [Client](#client)
+  * [Soal 4](#soal-4)
+    + [Solusi 4](#solusi-4)
+      - [Jipangu](#jipangu-1)
+      - [Client](#client-1)
+  * [Soal 5](#soal-5)
+    + [Solusi 5](#solusi-5)
+      - [EniesLobby](#enieslobby)
+      - [Client](#client-2)
+  * [Soal 6](#soal-6)
+    + [Solusi 6](#solusi-6)
+  * [Soal 7](#soal-7)
+    + [Solusi 7](#solusi-7)
+      - [Jipangu](#jipangu-2)
+      - [Skypie](#skypie)
+  * [Soal 8](#soal-8)
+    + [Solusi 8](#solusi-8)
+      - [DNS - EniesLobby](#dns---enieslobby)
+      - [Proxy - Water7](#proxy---water7)
+  * [Soal 9](#soal-9)
+    + [Solusi 9](#solusi-9)
+  * [Soal 10](#soal-10)
+    + [Solusi 10](#solusi-10)
+  * [Soal 11](#soal-11)
+    + [Solusi 11](#solusi-11)
+  * [Soal 12](#soal-12)
+    + [Solusi 12](#solusi-12)
+  * [Soal 13](#soal-13)
+    + [Solusi 13](#solusi-13)
+  * [Kendala](#kendala)
+
+### Keterangan
 - yyy adalah nama kelompok Anda
 - Untuk nomor 9, harus htpasswd yang melakukan enkripsi
 - Bisa melakukan wget [GitHub](https://raw.githubusercontent.com/FeinardSlim/Praktikum-Modul-2-Jarkom/main/super.franky.zip) untuk mendapatkan file untuk super.franky.yyy.com
@@ -394,10 +442,38 @@ Agar transaksi bisa lebih fokus berjalan, maka dilakukan redirect website agar m
 ## Soal 12
 Saatnya berlayar! Luffy dan Zoro akhirnya memutuskan untuk berlayar untuk **mencari harta karun di super.franky.yyy.com**. Tugas pencarian dibagi menjadi dua misi, Luffy bertugas untuk mendapatkan gambar (.png, .jpg), sedangkan Zoro mencari sisanya. Karena Luffy orangnya sangat teliti untuk mencari harta karun, ketika ia berhasil mendapatkan gambar, ia mendapatkan gambar dan melihatnya dengan kecepatan **10 kbps** (12).
 ### Solusi 12
+- Permintaan ini dapat dipenuhi dengan membuat sebuah file acl baru yang kita beri nama `/etc/squid/acl-bandwidth.conf`. Karena kita diharuskan membuat lebih dari dua jenis bandwith untuk kedua user, maka masukkan:
+```
+auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
+
+acl image url_regex -i \.png$ \.jpg
+acl others url_regex -i \.*$
+acl luffy proxy_auth luffybelikapalB10
+acl zoro proxy_auth zorobelikapalB10
+
+delay_pools 2
+
+delay_class 1 1
+delay_access 1 allow luffy image
+delay_access 1 deny others
+delay_parameters 1 1250/1250
+
+delay_class 2 1
+delay_access 2 allow zoro others
+delay_access 2 deny zoro image
+delay_parameters 2 -1/-1
+```
+- Delay pools berfungsi untuk membuat macam jenis dari kelas jenis bandwith. Di sini, kita membuat kelas pertama untuk dipakai user Luffy di mana hanya memperbolehkan gambar dan melarang yang lain. Kode `image` diambil dari url_regex yang hanya mengkhususkan untuk gambar dengan akhiran `.png` serta `.jpg`. Untuk parameter, kita memakai 1250 bitps di mana jika dikali 8 akan menghasilkan 10kbps.
+- Lalu, sesuaikan kode pada `/etc/squid/squid.conf` dengan menambahkan kode sebagai berikut.
+```
+include /etc/squid/acl-bandwidth.conf
+```
 
 ## Soal 13
 Sedangkan, Zoro yang sangat bersemangat untuk mencari harta karun, sehingga kecepatan kapal Zoro tidak dibatasi ketika sudah mendapatkan harta yang diinginkannya (13).
 ### Solusi 13
+- Sesuai dengan soal [12](#solusi-12), delay pools kelas kedua akan mengambil nilai `others` di mana memperbolehkan semua jenis file, lalu ditutup dengan `deny zoro image`. Di sini, default bandwith untuk tidak terbatas menggunakan delay parameters `-1/-1`.
 
 ## Kendala
-- kosong
+- Beberapa script yang dijalankan secara default seperti dhcp, terkadang tidak berfungsi sehingga perlu lakukan configurasi manual.
+- Soal yang saling bergantung satu sama lain, membuat harus bergantiannya waktu pengerjaan/susah dilakukan secara paralel.
