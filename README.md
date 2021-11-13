@@ -3,9 +3,9 @@
 ## Anggota B10
 Nama | NRP | Pembagian
 ------------ | ------------- | -------------
-Pramudya Tiandana Wisnu Gautama | 05111940000018 | x - x
-Jason Andrew Gunawan | 05111940000085 | x - x
-Frans Wijaya | 05111940000098 | x - x
+Pramudya Tiandana Wisnu Gautama | 05111940000018 | 1 - 2 & 12 - 13
+Jason Andrew Gunawan | 05111940000085 | 2 - 7
+Frans Wijaya | 05111940000098 | 8 - 11
 
 ## Daftar Isi
 - [Jarkom-Modul-3-B10-2021](#jarkom-modul-3-b10-2021)
