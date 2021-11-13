@@ -403,7 +403,7 @@ New password:zoro_B10
 - Setelah password dibuat, perlu diaktifkan terlebih dahulu di dalam `/etc/squid/squid.conf`
 
 ![aktif password](img/soal9-passwordactive.png)
-- Ketika dicoba akses `lynx jualbelikapal.B10.com`, pada Loguetown, hasilnya diminta username dan password agar bisa masuk:
+- Ketika dicoba akses `lynx its.ac.id`, pada Loguetown, hasilnya diminta username dan password agar bisa masuk:
 
 ![forbidden](img/soal9-forbidden.png)
 - Penginputan username
@@ -412,6 +412,9 @@ New password:zoro_B10
 - Penginputan password
 
 ![password](img/soal9-password.png)
+- Sukes masuk
+
+![sukses](img/soal9-sukses.png)
 - Isi file `/etc/squid/passwd`
 
 ![passwords](img/soal9-passwords.png)
@@ -427,7 +430,7 @@ Transaksi jual beli tidak dilakukan setiap hari, oleh karena itu akses internet 
 
 ![aktifkan working](img/soal10-working.png)
 - Pengaktifan rules dibuat seperti itu karena rules yang berada pada satu baris diproses dengan aturan and (&&), sedangkan untuk rules beda baris diproses dengan aturan or(||). Artinya pada susunan rules tersebut, setiap kali akan mengakses website yang diatur proxy, harus selalu login dan harus diakses pada salah satu jam yang telah diperbolehkan.
-- Berikut hasilnya ketika mencoba mengakses luffybelikapal.B10.com di luar jam yang diperbolehkan.
+- Berikut hasilnya ketika mencoba mengakses `lynx super.franky.B10.com/public` di luar jam yang diperbolehkan.
 
 ![working hours](img/soal10-work.png)
 
@@ -446,7 +449,7 @@ Saatnya berlayar! Luffy dan Zoro akhirnya memutuskan untuk berlayar untuk **menc
 ```
 auth_param basic program /usr/lib/squid/basic_ncsa_auth /etc/squid/passwd
 
-acl image url_regex -i \.png$ \.jpg
+acl image url_regex -i \.png$ \.jpg$
 acl others url_regex -i \.*$
 acl luffy proxy_auth luffybelikapalB10
 acl zoro proxy_auth zorobelikapalB10
@@ -468,11 +471,28 @@ delay_parameters 2 -1/-1
 ```
 include /etc/squid/acl-bandwidth.conf
 ```
+- Testing untuk download `.png` atau `.jpg`:
 
+![luffyimg](img/soal12-img.png)
+
+- Testing untuk download file selain `.png` atau `.jpg`:
+
+![luffy](img/soal12-luffy.png)
+
+![luffynonimg](img/soal12-nonimg.png)
+
+- Dapat dilihat untuk download file `.png` maupun `.jpg`, kecepatan download akan dibatasi.
 ## Soal 13
 Sedangkan, Zoro yang sangat bersemangat untuk mencari harta karun, sehingga kecepatan kapal Zoro tidak dibatasi ketika sudah mendapatkan harta yang diinginkannya (13).
 ### Solusi 13
 - Sesuai dengan soal [12](#solusi-12), delay pools kelas kedua akan mengambil nilai `others` di mana memperbolehkan semua jenis file, lalu ditutup dengan `deny zoro image`. Di sini, default bandwith untuk tidak terbatas menggunakan delay parameters `-1/-1`.
+- Testing untuk download:
+
+![zoroimg](img/soal13-zoro.png)
+
+![zorofast](img/soal13-zorofast.png)
+
+- Dapat dilihat untuk download file `.png` maupun `.jpg`, kecepatan download Zoro tidak dibatasi.
 
 ## Kendala
 - Beberapa script yang dijalankan secara default seperti dhcp, terkadang tidak berfungsi sehingga perlu lakukan configurasi manual.
