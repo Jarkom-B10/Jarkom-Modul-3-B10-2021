@@ -412,7 +412,7 @@ New password:zoro_B10
 - Penginputan password
 
 ![password](img/soal9-password.png)
-- Sukes masuk
+- Sukses masuk
 
 ![sukses](img/soal9-sukses.png)
 - Isi file `/etc/squid/passwd`
